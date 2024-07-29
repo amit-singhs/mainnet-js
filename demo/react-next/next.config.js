@@ -3,21 +3,24 @@ const nextConfig = {
   reactStrictMode: true,
   webpack: (config, options) => {
     config.experiments = { ...config.experiments, topLevelAwait: true };
-    config.resolve.alias = {
-      ...config.resolve.alias, ...{
-        events: require.resolve("events/"),
-        fs: EMPTY_PATH,
-        http: EMPTY_PATH,
-        https: EMPTY_PATH,
-        net: EMPTY_PATH,
+
+    if (options.isServer) {
+      // Configure aliases only for the client-side build
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        events: require.resolve('events/'),
+        fs: false, // or another browser-compatible fs
+        http: require.resolve('stream-http'),
+        https: require.resolve('https-browserify'),
+        net: false,
         stream: require.resolve('stream-browserify'),
-        tls: EMPTY_PATH,
-        url: EMPTY_PATH
-      }
-    };
-    return config
+        tls: false,
+        url: require.resolve('url/'),
+      };
+    }
+
+    return config;
   },
+};
 
-}
-
-module.exports = nextConfig
+module.exports = nextConfig;
